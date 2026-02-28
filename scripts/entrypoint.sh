@@ -27,6 +27,9 @@ for attempt in range(1, 61):
 PY
 
 python manage.py migrate
+if [ "${AUTO_SEED_DEMO:-1}" = "1" ]; then
+  python manage.py seed_demo_data --if-empty
+fi
 python manage.py collectstatic --noinput
 if [ "$#" -gt 0 ]; then
   exec "$@"

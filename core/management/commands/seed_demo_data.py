@@ -45,10 +45,19 @@ class Command(BaseCommand):
             action="store_true",
             help="Clear existing data before seeding",
         )
+        parser.add_argument(
+            "--if-empty",
+            action="store_true",
+            help="Skip seeding when application data already exists",
+        )
 
     def handle(self, *args, **options):
         if not SAMPLE_DB.exists():
             self.stderr.write(self.style.ERROR(f"Sample DB not found: {SAMPLE_DB}"))
+            return
+
+        if options["if_empty"] and self._is_populated():
+            self.stdout.write(self.style.WARNING("Application data already exists. Skipping demo seed."))
             return
 
         conn = sqlite3.connect(str(SAMPLE_DB))
@@ -308,3 +317,14 @@ class Command(BaseCommand):
         User.objects.filter(email__endswith="@example.org").delete()
         User.objects.filter(email__endswith="@example.com").delete()
         self.stdout.write(self.style.SUCCESS("  Flushed."))
+
+    def _is_populated(self):
+        User = get_user_model()
+        return (
+            User.objects.exists()
+            or Listing.objects.exists()
+            or Reservation.objects.exists()
+            or HostProfile.objects.exists()
+            or Amenity.objects.exists()
+            or UserNotification.objects.exists()
+        )

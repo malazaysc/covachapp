@@ -52,6 +52,15 @@ docker compose --profile mail up --build
 docker compose exec web python manage.py seed_demo_data
 ```
 
+By default, the container entrypoint auto-runs:
+
+```bash
+python manage.py seed_demo_data --if-empty
+```
+
+right after migrations, so first boot gets demo data and later restarts skip duplicates.
+Set `AUTO_SEED_DEMO=0` in `.env` to disable.
+
 ## Key URLs
 
 - `/` home
