@@ -70,7 +70,7 @@ class Command(BaseCommand):
 
         # 1. Create test users
         self.stdout.write("Creating users...")
-        ops = self._create_user(User, "ops@covach.dev", is_staff=True)
+        self._create_user(User, "ops@covach.dev", is_staff=True)
         guest = self._create_user(User, "guest@covach.dev")
 
         hosts = []

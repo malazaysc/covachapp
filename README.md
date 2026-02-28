@@ -84,6 +84,28 @@ docker compose exec web python manage.py expire_reservation_requests
 
 Run this daily via cron or your scheduler.
 
+## Quality Checks
+
+Lint Python:
+
+```bash
+docker compose run --rm web ruff check .
+```
+
+Build Tailwind assets:
+
+```bash
+npm install
+npm run tailwind:build
+```
+
+Run Django build checks:
+
+```bash
+docker compose run --rm web python manage.py check
+docker compose run --rm web python manage.py collectstatic --noinput
+```
+
 ## Testing
 
 ```bash

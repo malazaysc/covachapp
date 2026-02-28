@@ -2,7 +2,7 @@ import pytest
 from django.urls import reverse
 
 from accounts.models import HostProfile
-from tests.factories import HostProfileFactory, UserFactory
+from tests.factories import UserFactory
 
 
 @pytest.mark.django_db
