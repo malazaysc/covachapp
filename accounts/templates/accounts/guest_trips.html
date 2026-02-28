@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Your Trips · Covach{% endblock %}
+{% block content %}
+<section>
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-heading text-3xl font-bold">Your trips</h1>
+    <a href="{% url 'search:results' %}" class="btn btn-secondary btn-sm">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      Find stays
+    </a>
+  </div>
+  <div class="space-y-3">
+    {% for reservation in reservations %}
+      <article class="card p-5">
+        <div class="flex flex-wrap justify-between gap-4 items-start">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              {% if reservation.status == 'requested' %}
+                <span class="badge badge-amber">Requested</span>
+              {% elif reservation.status == 'approved' %}
+                <span class="badge badge-green">Approved</span>
+              {% elif reservation.status == 'declined' %}
+                <span class="badge badge-red">Declined</span>
+              {% elif reservation.status == 'canceled' %}
+                <span class="badge badge-gray">Canceled</span>
+              {% elif reservation.status == 'expired' %}
+                <span class="badge badge-gray">Expired</span>
+              {% else %}
+                <span class="badge badge-gray">{{ reservation.get_status_display }}</span>
+              {% endif %}
+            </div>
+            <p class="font-heading text-lg font-bold">{{ reservation.listing.title }}</p>
+            <div class="flex items-center gap-4 mt-1.5 text-sm text-neutral-400">
+              <span class="flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                {{ reservation.check_in }} &rarr; {{ reservation.check_out }}
+              </span>
+              <span class="font-semibold text-ink">${{ reservation.total_usd }}</span>
+            </div>
+          </div>
+          {% if reservation.status == 'requested' or reservation.status == 'approved' %}
+            <form method="post" action="{% url 'reservations:cancel' pk=reservation.pk %}">{% csrf_token %}
+              <button class="btn btn-danger-outline btn-sm">Cancel</button>
+            </form>
+          {% endif %}
+        </div>
+      </article>
+    {% empty %}
+      <div class="card p-12 text-center">
+        <svg class="w-12 h-12 text-neutral-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+        <p class="text-neutral-400 font-medium">No trips yet.</p>
+        <p class="text-sm text-neutral-300 mt-1">Start exploring stays to plan your next adventure.</p>
+        <a href="{% url 'search:results' %}" class="btn btn-primary mt-4">Explore stays</a>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

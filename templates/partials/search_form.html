@@ -1,0 +1,62 @@
+<form method="get" action="{% url 'search:results' %}" id="search-form"
+      class="glass rounded-2xl border border-neutral-200 p-5 shadow-card"
+      {% if enable_htmx %}
+      hx-get="{% url 'search:hx_results' %}" hx-target="#search-results" hx-trigger="change delay:400ms from:input"
+      {% endif %}>
+
+  <!-- Row 1: Location + Dates + Guests -->
+  <div class="grid gap-4 grid-cols-2 md:grid-cols-5 mb-4">
+    <div class="col-span-2">
+      <label class="form-label">Location</label>
+      <div class="relative">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        <input class="form-input !pl-9" type="text" name="q" placeholder="City or neighborhood" value="{{ request.GET.q|default:'' }}">
+      </div>
+    </div>
+    <div>
+      <label class="form-label">Check in</label>
+      <input class="form-input" type="date" name="check_in" value="{{ request.GET.check_in|default:'' }}">
+    </div>
+    <div>
+      <label class="form-label">Check out</label>
+      <input class="form-input" type="date" name="check_out" value="{{ request.GET.check_out|default:'' }}">
+    </div>
+    <div>
+      <label class="form-label">Guests</label>
+      <input class="form-input" type="number" min="1" name="guests" placeholder="1" value="{{ request.GET.guests|default:'' }}">
+    </div>
+  </div>
+
+  <!-- Row 2: Filters -->
+  <div class="grid gap-4 grid-cols-2 md:grid-cols-5">
+    <div>
+      <label class="form-label">Min price</label>
+      <input class="form-input" type="number" name="min_price" placeholder="$0" value="{{ request.GET.min_price|default:'' }}">
+    </div>
+    <div>
+      <label class="form-label">Max price</label>
+      <input class="form-input" type="number" name="max_price" placeholder="Any" value="{{ request.GET.max_price|default:'' }}">
+    </div>
+    <div>
+      <label class="form-label">Type</label>
+      <select class="form-select" name="property_type">
+        <option value="">Any type</option>
+        <option value="apartment" {% if request.GET.property_type == 'apartment' %}selected{% endif %}>Apartment</option>
+        <option value="house" {% if request.GET.property_type == 'house' %}selected{% endif %}>House</option>
+        <option value="condo" {% if request.GET.property_type == 'condo' %}selected{% endif %}>Condo</option>
+        <option value="cabin" {% if request.GET.property_type == 'cabin' %}selected{% endif %}>Cabin</option>
+        <option value="villa" {% if request.GET.property_type == 'villa' %}selected{% endif %}>Villa</option>
+      </select>
+    </div>
+    <div>
+      <label class="form-label">Radius</label>
+      <input class="form-input" type="number" min="1" max="100" name="radius_km" placeholder="25 km" value="{{ request.GET.radius_km|default:'25' }}">
+    </div>
+    <div class="flex items-end">
+      <button type="submit" class="btn btn-primary w-full">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+        Search
+      </button>
+    </div>
+  </div>
+</form>

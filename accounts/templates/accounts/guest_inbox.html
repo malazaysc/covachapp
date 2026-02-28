@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Inbox · Covach{% endblock %}
+{% block content %}
+<section>
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-heading text-3xl font-bold">Inbox</h1>
+  </div>
+  <div class="card p-6" id="inbox-list">
+    {% include 'partials/inbox_list.html' %}
+  </div>
+</section>
+{% endblock %}

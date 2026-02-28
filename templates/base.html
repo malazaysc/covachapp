@@ -1,0 +1,411 @@
+{% load static %}
+<!doctype html>
+<html lang="en" class="h-full bg-[#f8f8f8]">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Covach{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Fraunces', 'serif'],
+            body: ['Manrope', 'sans-serif']
+          },
+          colors: {
+            ink: '#1a1a1a',
+            sand: '#f8f8f8',
+            oat: '#e5e5e5',
+            bronze: '#2563eb',
+            mist: '#f1f1f1',
+            'bronze-dark': '#1d4ed8',
+            emerald: '#16a34a',
+            'emerald-light': '#dcfce7',
+            rose: '#dc2626',
+            'rose-light': '#fee2e2',
+            amber: '#d97706',
+            'amber-light': '#fef3c7',
+            sky: '#0284c7',
+            'sky-light': '#e0f2fe'
+          },
+          boxShadow: {
+            card: '0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04)',
+            'card-hover': '0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04)',
+            'card-lg': '0 4px 16px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04)'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body {
+      font-family: 'Manrope', sans-serif;
+      background-color: #f8f8f8;
+      color: #1a1a1a;
+    }
+    .glass {
+      background: #fff;
+    }
+
+    /* ── Design System ── */
+
+    /* Form inputs */
+    .form-input {
+      display: block;
+      width: 100%;
+      border-radius: 0.5rem;
+      border: 1px solid #d4d4d4;
+      background-color: #fff;
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      color: #1a1a1a;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+    .form-input:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+    .form-input::placeholder { color: #a3a3a3; }
+
+    .form-select {
+      display: block;
+      width: 100%;
+      border-radius: 0.5rem;
+      border: 1px solid #d4d4d4;
+      background-color: #fff;
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      color: #1a1a1a;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%231a1a1a' viewBox='0 0 16 16'%3E%3Cpath d='M4.646 5.646a.5.5 0 0 1 .708 0L8 8.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      padding-right: 2.5rem;
+    }
+    .form-select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 0.375rem;
+      letter-spacing: 0.01em;
+    }
+
+    .form-group { margin-bottom: 1.25rem; }
+
+    .form-textarea {
+      display: block;
+      width: 100%;
+      border-radius: 0.5rem;
+      border: 1px solid #d4d4d4;
+      background-color: #fff;
+      padding: 0.875rem 1rem;
+      font-size: 1rem;
+      color: #1a1a1a;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+      resize: vertical;
+    }
+    .form-textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .form-checkbox-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .form-checkbox-list label {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.875rem;
+      padding: 0.375rem 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid #d4d4d4;
+      cursor: pointer;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+    .form-checkbox-list label:has(input:checked) {
+      background-color: #2563eb;
+      border-color: #2563eb;
+      color: #fff;
+    }
+    .form-checkbox-list input[type="checkbox"] {
+      width: 0; height: 0; opacity: 0; position: absolute;
+    }
+
+    .form-help {
+      font-size: 0.75rem;
+      color: #737373;
+      margin-top: 0.25rem;
+    }
+
+    .form-error {
+      font-size: 0.75rem;
+      color: #dc2626;
+      margin-top: 0.25rem;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      border-radius: 0.5rem;
+      padding: 0.625rem 1.25rem;
+      transition: all 0.15s;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background-color: #1a1a1a;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background-color: #333;
+    }
+    .btn-secondary {
+      background-color: #fff;
+      color: #1a1a1a;
+      border: 1px solid #d4d4d4;
+    }
+    .btn-secondary:hover {
+      background-color: #f5f5f5;
+      border-color: #a3a3a3;
+    }
+    .btn-success {
+      background-color: #16a34a;
+      color: #fff;
+    }
+    .btn-success:hover { background-color: #15803d; }
+    .btn-danger {
+      background-color: #dc2626;
+      color: #fff;
+    }
+    .btn-danger:hover { background-color: #b91c1c; }
+    .btn-danger-outline {
+      background-color: transparent;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+    .btn-danger-outline:hover {
+      background-color: #fee2e2;
+    }
+    .btn-sm {
+      font-size: 0.8125rem;
+      padding: 0.375rem 0.875rem;
+      border-radius: 0.375rem;
+    }
+    .btn-lg {
+      font-size: 1rem;
+      padding: 0.75rem 1.75rem;
+      border-radius: 0.5rem;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.625rem;
+      border-radius: 9999px;
+    }
+    .badge-amber { background-color: #fef3c7; color: #92400e; }
+    .badge-green { background-color: #dcfce7; color: #166534; }
+    .badge-red { background-color: #fee2e2; color: #991b1b; }
+    .badge-gray { background-color: #f3f4f6; color: #4b5563; }
+    .badge-blue { background-color: #e0f2fe; color: #075985; }
+    .badge-bronze { background-color: #eff6ff; color: #1e40af; }
+
+    /* Cards */
+    .card {
+      background-color: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 0.75rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    .card-hover {
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .card-hover:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+      transform: translateY(-1px);
+    }
+
+    /* Toast animations */
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(-0.75rem); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes toast-out {
+      0% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(-0.5rem); }
+    }
+    .toast {
+      animation: toast-in 0.3s ease-out, toast-out 0.5s ease-in 4s forwards;
+    }
+
+    /* Nav active */
+    .nav-link {
+      position: relative;
+      padding: 0.25rem 0;
+      font-weight: 500;
+      color: #737373;
+      transition: color 0.15s;
+    }
+    .nav-link:hover { color: #1a1a1a; }
+    .nav-link.active {
+      color: #1a1a1a;
+    }
+    .nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -0.375rem;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: #1a1a1a;
+      border-radius: 1px;
+    }
+
+    /* Stat card */
+    .stat-card {
+      text-align: center;
+      padding: 1.25rem;
+    }
+    .stat-card .stat-value {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-card .stat-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #737373;
+      margin-top: 0.375rem;
+    }
+
+    /* Page transitions */
+    main { animation: fade-in 0.25s ease-out; }
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+  <script>
+    document.addEventListener('htmx:configRequest', function (event) {
+      var name = 'csrftoken=';
+      var decoded = decodeURIComponent(document.cookie || '');
+      var parts = decoded.split(';');
+      for (var i = 0; i < parts.length; i++) {
+        var item = parts[i].trim();
+        if (item.indexOf(name) === 0) {
+          event.detail.headers['X-CSRFToken'] = item.substring(name.length);
+          break;
+        }
+      }
+    });
+  </script>
+</head>
+<body class="min-h-full flex flex-col">
+  <header class="border-b border-neutral-200 bg-white sticky top-0 z-40">
+    <nav class="mx-auto max-w-7xl px-4 sm:px-6 py-3.5 flex items-center justify-between">
+      <a href="/" class="font-heading text-2xl font-bold tracking-tight text-neutral-900">Covach</a>
+
+      <!-- Mobile hamburger -->
+      <button
+        onclick="document.getElementById('nav-menu').classList.toggle('hidden')"
+        class="md:hidden p-2 rounded-lg hover:bg-neutral-100 transition"
+        aria-label="Toggle menu"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+
+      <!-- Desktop nav -->
+      <div class="hidden md:flex items-center gap-6 text-sm">
+        <a class="nav-link {% if request.resolver_match.url_name == 'results' and request.resolver_match.namespace == 'search' %}active{% endif %}" href="{% url 'search:results' %}">Search</a>
+        {% if user.is_authenticated %}
+          <a class="nav-link {% if request.resolver_match.namespace == 'listings' or request.path == '/host/dashboard' %}active{% endif %}" href="/host/dashboard">Host</a>
+          <a class="nav-link {% if request.path == '/guest/trips' %}active{% endif %}" href="/guest/trips">Trips</a>
+          <a class="nav-link relative {% if request.path == '/guest/inbox' %}active{% endif %}" href="/guest/inbox">
+            Inbox
+            {% if unread_count %}<span class="absolute -top-1.5 -right-3 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{{ unread_count }}</span>{% endif %}
+          </a>
+          {% if user.is_staff %}<a class="nav-link {% if request.resolver_match.namespace == 'ops_portal' %}active{% endif %}" href="/ops">Ops</a>{% endif %}
+          <form method="post" action="{% url 'accounts:logout' %}" class="inline">{% csrf_token %}
+            <button class="btn btn-primary btn-sm">Logout</button>
+          </form>
+        {% else %}
+          <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+          <a class="btn btn-primary btn-sm" href="{% url 'accounts:signup' %}">Sign up</a>
+        {% endif %}
+      </div>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="nav-menu" class="hidden md:hidden border-t border-neutral-200 px-4 pb-4 pt-2 space-y-2 text-sm">
+      <a class="block py-2 nav-link" href="{% url 'search:results' %}">Search</a>
+      {% if user.is_authenticated %}
+        <a class="block py-2 nav-link" href="/host/dashboard">Host</a>
+        <a class="block py-2 nav-link" href="/guest/trips">Trips</a>
+        <a class="block py-2 nav-link" href="/guest/inbox">Inbox</a>
+        {% if user.is_staff %}<a class="block py-2 nav-link" href="/ops">Ops</a>{% endif %}
+        <form method="post" action="{% url 'accounts:logout' %}">{% csrf_token %}
+          <button class="btn btn-primary btn-sm w-full mt-1">Logout</button>
+        </form>
+      {% else %}
+        <a class="block py-2 nav-link" href="{% url 'accounts:login' %}">Login</a>
+        <a class="btn btn-primary btn-sm w-full mt-1 block text-center" href="{% url 'accounts:signup' %}">Sign up</a>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 py-8">
+    {% include 'partials/messages.html' %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="border-t border-neutral-200 bg-white mt-auto">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 py-8">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-neutral-400">
+        <span class="font-heading font-bold text-neutral-600">Covach</span>
+        <div class="flex gap-6">
+          <a href="/" class="hover:text-neutral-900 transition">Home</a>
+          <a href="{% url 'search:results' %}" class="hover:text-neutral-900 transition">Search</a>
+          {% if user.is_authenticated %}
+            <a href="/guest/trips" class="hover:text-neutral-900 transition">Trips</a>
+          {% endif %}
+        </div>
+        <span>&copy; 2026 Covach. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

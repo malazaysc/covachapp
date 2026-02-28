@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Ops Metrics · Covach{% endblock %}
+{% block content %}
+<section class="space-y-6">
+  <div class="mb-6">
+    <nav class="text-sm text-neutral-400 mb-1">
+      <a href="{% url 'ops_portal:home' %}" class="hover:text-blue-600 transition">Ops</a>
+      <span class="mx-1.5">/</span>
+      <span class="text-neutral-500">Metrics</span>
+    </nav>
+    <h1 class="font-heading text-3xl font-bold">Metrics</h1>
+  </div>
+
+  <!-- Revenue stat -->
+  <div class="card stat-card py-8">
+    <div class="stat-label mb-2">Approved Booking Revenue</div>
+    <div class="stat-value text-3xl text-emerald">${{ revenue }}</div>
+  </div>
+
+  <!-- Status breakdown -->
+  <div class="card p-6">
+    <h2 class="font-heading text-xl font-bold mb-4">Reservations by Status</h2>
+    {% if by_status %}
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {% for item in by_status %}
+          <div class="flex items-center justify-between rounded-lg bg-neutral-50 px-4 py-3">
+            <span class="text-sm font-medium">
+              {% if item.status == 'requested' %}
+                <span class="badge badge-amber">{{ item.status }}</span>
+              {% elif item.status == 'approved' %}
+                <span class="badge badge-green">{{ item.status }}</span>
+              {% elif item.status == 'declined' %}
+                <span class="badge badge-red">{{ item.status }}</span>
+              {% elif item.status == 'canceled' %}
+                <span class="badge badge-gray">{{ item.status }}</span>
+              {% elif item.status == 'expired' %}
+                <span class="badge badge-gray">{{ item.status }}</span>
+              {% else %}
+                <span class="badge badge-gray">{{ item.status }}</span>
+              {% endif %}
+            </span>
+            <span class="font-heading text-xl font-bold">{{ item.total }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-sm text-neutral-400">No reservation data yet.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,11 @@
+Django==5.1.6
+django-htmx==1.21.0
+dj-database-url==2.3.0
+psycopg2-binary==2.9.10
+django-storages==1.14.5
+boto3==1.36.26
+Pillow==11.1.0
+python-dotenv==1.0.1
+pytest==8.3.4
+pytest-django==4.10.0
+factory-boy==3.3.1

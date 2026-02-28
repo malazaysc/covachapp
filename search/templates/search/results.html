@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Covach · Search{% endblock %}
+{% block content %}
+<section class="space-y-6">
+  {% include 'partials/search_form.html' with enable_htmx=True %}
+
+  <div class="grid gap-6 lg:grid-cols-2">
+    <div id="search-results">
+      {% include 'partials/search_results_list.html' %}
+    </div>
+    <div class="card p-3 h-fit sticky top-20">
+      <div id="map" class="h-[520px] w-full rounded-xl"></div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  var map = L.map('map').setView([37.773972, -122.431297], 4);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  var markers = [];
+
+  function refreshMarkers() {
+    var params = new URLSearchParams(new FormData(document.getElementById('search-form'))).toString();
+    fetch('/hx/search/map/?' + params)
+      .then(function (r) { return r.json(); })
+      .then(function (payload) {
+        markers.forEach(function (m) { map.removeLayer(m); });
+        markers = [];
+        if (payload.results.length === 0) {
+          return;
+        }
+        var bounds = [];
+        payload.results.forEach(function (item) {
+          var marker = L.marker([item.lat, item.lon]).addTo(map)
+            .bindPopup('<a href="/listings/' + item.slug + '/" class="font-semibold">' + item.title + '</a><br>$' + item.price + '/night');
+          markers.push(marker);
+          bounds.push([item.lat, item.lon]);
+        });
+        map.fitBounds(bounds, { padding: [20, 20] });
+      });
+  }
+
+  refreshMarkers();
+  document.body.addEventListener('htmx:afterSwap', function (event) {
+    if (event.detail.target.id === 'search-results') {
+      refreshMarkers();
+    }
+  });
+})();
+</script>
+{% endblock %}

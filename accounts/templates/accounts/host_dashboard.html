@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Host Dashboard · Covach{% endblock %}
+{% block content %}
+<section class="space-y-8">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h1 class="font-heading text-3xl font-bold">Host dashboard</h1>
+    {% if profile %}
+      {% if profile.status == 'approved' %}
+        <span class="badge badge-green">Approved Host</span>
+      {% elif profile.status == 'pending' %}
+        <span class="badge badge-amber">Pending Approval</span>
+      {% else %}
+        <span class="badge badge-gray">{{ profile.get_status_display }}</span>
+      {% endif %}
+    {% endif %}
+  </div>
+
+  {% if not profile %}
+    <div class="card p-8 text-center">
+      <svg class="w-12 h-12 text-neutral-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819"/></svg>
+      <p class="text-neutral-400 font-medium">You are not a host yet.</p>
+      <a href="{% url 'accounts:apply_host' %}" class="btn btn-primary mt-4">Apply to host</a>
+    </div>
+  {% else %}
+    <!-- Stat cards -->
+    <div class="grid gap-4 sm:grid-cols-3">
+      <div class="card stat-card">
+        <div class="stat-value text-ink">{{ listings|length }}</div>
+        <div class="stat-label">Listings</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-value text-amber">{{ pending_reservations|length }}</div>
+        <div class="stat-label">Pending Requests</div>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-value text-emerald">{{ approved_count|default:"0" }}</div>
+        <div class="stat-label">Approved Bookings</div>
+      </div>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-2">
+      <!-- Listings -->
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-heading text-xl font-bold">Your listings</h2>
+          <a class="btn btn-secondary btn-sm" href="/host/listings">Manage</a>
+        </div>
+        <div class="space-y-2">
+          {% for listing in listings %}
+            <div class="flex items-center justify-between gap-3 rounded-lg bg-neutral-50 px-4 py-3">
+              <div>
+                <p class="font-medium">{{ listing.title }}</p>
+                <p class="text-xs text-neutral-400">${{ listing.nightly_rate_usd }}/night</p>
+              </div>
+              {% if listing.status == 'published' %}
+                <span class="badge badge-green">Published</span>
+              {% elif listing.status == 'draft' %}
+                <span class="badge badge-gray">Draft</span>
+              {% elif listing.status == 'archived' %}
+                <span class="badge badge-gray">Archived</span>
+              {% else %}
+                <span class="badge badge-gray">{{ listing.get_status_display }}</span>
+              {% endif %}
+            </div>
+          {% empty %}
+            <p class="text-sm text-neutral-400 py-2">No listings yet.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Pending requests -->
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-heading text-xl font-bold">Pending requests</h2>
+          <a class="btn btn-secondary btn-sm" href="/host/reservations">View all</a>
+        </div>
+        <div class="space-y-2">
+          {% for reservation in pending_reservations %}
+            <div class="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3">
+              <p class="font-medium text-sm">{{ reservation.listing.title }}</p>
+              <div class="flex items-center gap-1.5 text-xs text-neutral-500 mt-1">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg>
+                {{ reservation.check_in }} &rarr; {{ reservation.check_out }}
+              </div>
+            </div>
+          {% empty %}
+            <p class="text-sm text-neutral-400 py-2">No pending reservation requests.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

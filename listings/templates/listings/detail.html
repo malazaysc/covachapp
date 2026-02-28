@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}{{ listing.title }} · Covach{% endblock %}
+{% block content %}
+<section class="space-y-6">
+  <!-- Breadcrumb -->
+  <nav class="text-sm text-neutral-400">
+    <a href="{% url 'search:results' %}" class="hover:text-blue-600 transition">Search</a>
+    <span class="mx-1.5">/</span>
+    <span class="text-neutral-500">{{ listing.title }}</span>
+  </nav>
+
+  <div class="grid gap-6 lg:grid-cols-3">
+    <article class="lg:col-span-2 space-y-6">
+      <!-- Photo gallery -->
+      {% with first_photo=listing.photos.first %}
+        {% if first_photo %}
+          <div class="rounded-2xl overflow-hidden">
+            <img src="{{ first_photo.url }}" alt="{{ listing.title }}" class="h-80 sm:h-96 w-full object-cover">
+          </div>
+        {% else %}
+          <div class="h-80 sm:h-96 w-full rounded-2xl bg-neutral-100 flex items-center justify-center">
+            <div class="text-center">
+              <svg class="w-16 h-16 text-neutral-300 mx-auto" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 013.182 0l2.909 2.91M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z"/></svg>
+              <p class="text-sm text-neutral-300 mt-2">No photos yet</p>
+            </div>
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <!-- Title and location -->
+      <div class="card p-6">
+        <div class="flex items-start justify-between gap-3">
+          <div>
+            <span class="badge badge-bronze mb-2">{{ listing.get_property_type_display }}</span>
+            <h1 class="font-heading text-3xl sm:text-4xl font-bold">{{ listing.title }}</h1>
+            <p class="mt-1.5 text-neutral-400">{{ listing.city }}, {{ listing.country }}</p>
+          </div>
+        </div>
+
+        <!-- Info grid -->
+        <div class="flex flex-wrap gap-3 mt-5">
+          <div class="flex items-center gap-2 rounded-full bg-neutral-100 px-4 py-2 text-sm">
+            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>
+            <span>{{ listing.max_guests }} guest{{ listing.max_guests|pluralize }}</span>
+          </div>
+          <div class="flex items-center gap-2 rounded-full bg-neutral-100 px-4 py-2 text-sm">
+            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955a1.126 1.126 0 011.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75"/></svg>
+            <span>{{ listing.bedrooms }} bedroom{{ listing.bedrooms|pluralize }}</span>
+          </div>
+          <div class="flex items-center gap-2 rounded-full bg-neutral-100 px-4 py-2 text-sm">
+            <svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>{{ listing.bathrooms }} bathroom{{ listing.bathrooms|pluralize }}</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <div class="mt-6 pt-6 border-t border-neutral-200">
+          <h2 class="font-heading text-xl font-bold mb-3">About this place</h2>
+          <p class="text-neutral-500 leading-relaxed">{{ listing.description }}</p>
+        </div>
+
+        <!-- Amenities -->
+        <div class="mt-6 pt-6 border-t border-neutral-200">
+          <h2 class="font-heading text-xl font-bold mb-3">Amenities</h2>
+          <div class="flex flex-wrap gap-2">
+            {% for amenity in listing.amenities.all %}
+              <span class="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 border border-neutral-200 px-3.5 py-1.5 text-sm">{{ amenity.name }}</span>
+            {% empty %}
+              <p class="text-sm text-neutral-400">No amenities listed.</p>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Availability -->
+      <div class="card p-6">
+        <h2 class="font-heading text-xl font-bold mb-4">Availability</h2>
+        <div
+          hx-get="/hx/listings/{{ listing.id }}/availability"
+          hx-trigger="load"
+          hx-target="this"
+        >
+          <div class="flex items-center gap-2 text-sm text-neutral-400 py-4">
+            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+            Loading availability...
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- Booking sidebar -->
+    <aside class="lg:sticky lg:top-20 h-fit">
+      <div class="card p-6 shadow-card-lg">
+        <p class="font-heading text-2xl font-bold">${{ listing.nightly_rate_usd }} <span class="text-base font-normal text-neutral-400">/night</span></p>
+        {% if user.is_authenticated %}
+          <form method="post" action="{% url 'reservations:request' %}" class="mt-5 space-y-4">{% csrf_token %}
+            <input type="hidden" name="listing_id" value="{{ listing.id }}">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="form-group">
+                <label class="form-label">Check in</label>
+                <input class="form-input" type="date" name="check_in" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Check out</label>
+                <input class="form-input" type="date" name="check_out" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Guests</label>
+              <input class="form-input" type="number" min="1" max="{{ listing.max_guests }}" name="guests" value="1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Message to host</label>
+              <textarea class="form-textarea" name="guest_message" rows="3" placeholder="Introduce yourself..."></textarea>
+            </div>
+            <button class="btn btn-primary btn-lg w-full" type="submit">Request to book</button>
+          </form>
+        {% else %}
+          <div class="mt-5 pt-5 border-t border-neutral-200 text-center">
+            <p class="text-sm text-neutral-500 mb-3">Sign in to request a booking</p>
+            <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg w-full">Sign in to book</a>
+          </div>
+        {% endif %}
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Ops Listings · Covach{% endblock %}
+{% block content %}
+<section>
+  <div class="mb-6">
+    <nav class="text-sm text-neutral-400 mb-1">
+      <a href="{% url 'ops_portal:home' %}" class="hover:text-blue-600 transition">Ops</a>
+      <span class="mx-1.5">/</span>
+      <span class="text-neutral-500">Listings</span>
+    </nav>
+    <h1 class="font-heading text-3xl font-bold">Listings moderation</h1>
+  </div>
+
+  <!-- Table-like layout -->
+  <div class="card overflow-hidden">
+    <div class="hidden sm:grid grid-cols-12 gap-4 px-5 py-3 bg-neutral-100 border-b border-neutral-200 text-xs font-bold uppercase tracking-wider text-neutral-300">
+      <div class="col-span-4">Listing</div>
+      <div class="col-span-3">Host</div>
+      <div class="col-span-3">Location</div>
+      <div class="col-span-2">Status</div>
+    </div>
+    {% for listing in listings %}
+      <div class="grid sm:grid-cols-12 gap-2 sm:gap-4 px-5 py-4 border-b border-neutral-200 last:border-b-0 items-center text-sm">
+        <div class="sm:col-span-4 font-semibold">{{ listing.title }}</div>
+        <div class="sm:col-span-3 text-neutral-400">{{ listing.host.email }}</div>
+        <div class="sm:col-span-3 text-neutral-400">{{ listing.city }}</div>
+        <div class="sm:col-span-2">
+          {% if listing.status == 'published' %}
+            <span class="badge badge-green">Published</span>
+          {% elif listing.status == 'draft' %}
+            <span class="badge badge-gray">Draft</span>
+          {% elif listing.status == 'archived' %}
+            <span class="badge badge-gray">Archived</span>
+          {% else %}
+            <span class="badge badge-gray">{{ listing.get_status_display }}</span>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="p-12 text-center">
+        <p class="text-neutral-400 font-medium">No listings.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

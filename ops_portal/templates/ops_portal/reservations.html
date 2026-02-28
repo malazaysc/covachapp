@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Ops Reservations · Covach{% endblock %}
+{% block content %}
+<section>
+  <div class="mb-6">
+    <nav class="text-sm text-neutral-400 mb-1">
+      <a href="{% url 'ops_portal:home' %}" class="hover:text-blue-600 transition">Ops</a>
+      <span class="mx-1.5">/</span>
+      <span class="text-neutral-500">Reservations</span>
+    </nav>
+    <h1 class="font-heading text-3xl font-bold">Reservations</h1>
+  </div>
+
+  <!-- Table-like layout -->
+  <div class="card overflow-hidden">
+    <div class="hidden sm:grid grid-cols-12 gap-4 px-5 py-3 bg-neutral-100 border-b border-neutral-200 text-xs font-bold uppercase tracking-wider text-neutral-300">
+      <div class="col-span-3">Listing</div>
+      <div class="col-span-2">Guest</div>
+      <div class="col-span-2">Host</div>
+      <div class="col-span-3">Dates</div>
+      <div class="col-span-1">Total</div>
+      <div class="col-span-1">Status</div>
+    </div>
+    {% for reservation in reservations %}
+      <div class="grid sm:grid-cols-12 gap-2 sm:gap-4 px-5 py-4 border-b border-neutral-200 last:border-b-0 items-center text-sm">
+        <div class="sm:col-span-3 font-semibold">{{ reservation.listing.title }}</div>
+        <div class="sm:col-span-2 text-neutral-400 truncate">{{ reservation.guest.email }}</div>
+        <div class="sm:col-span-2 text-neutral-400 truncate">{{ reservation.host.email }}</div>
+        <div class="sm:col-span-3 text-neutral-400">{{ reservation.check_in }} &rarr; {{ reservation.check_out }}</div>
+        <div class="sm:col-span-1 font-semibold">${{ reservation.total_usd }}</div>
+        <div class="sm:col-span-1">
+          {% if reservation.status == 'requested' %}
+            <span class="badge badge-amber">Requested</span>
+          {% elif reservation.status == 'approved' %}
+            <span class="badge badge-green">Approved</span>
+          {% elif reservation.status == 'declined' %}
+            <span class="badge badge-red">Declined</span>
+          {% elif reservation.status == 'canceled' %}
+            <span class="badge badge-gray">Canceled</span>
+          {% elif reservation.status == 'expired' %}
+            <span class="badge badge-gray">Expired</span>
+          {% else %}
+            <span class="badge badge-gray">{{ reservation.get_status_display }}</span>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div class="p-12 text-center">
+        <p class="text-neutral-400 font-medium">No reservations yet.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

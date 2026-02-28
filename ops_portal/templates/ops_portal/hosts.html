@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Ops Hosts · Covach{% endblock %}
+{% block content %}
+<section>
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <nav class="text-sm text-neutral-400 mb-1">
+        <a href="{% url 'ops_portal:home' %}" class="hover:text-blue-600 transition">Ops</a>
+        <span class="mx-1.5">/</span>
+        <span class="text-neutral-500">Hosts</span>
+      </nav>
+      <h1 class="font-heading text-3xl font-bold">Host approvals</h1>
+    </div>
+  </div>
+  <div class="space-y-3">
+    {% for host in hosts %}
+      <article class="card p-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            {% if host.status == 'approved' %}
+              <span class="badge badge-green">Approved</span>
+            {% elif host.status == 'pending' %}
+              <span class="badge badge-amber">Pending</span>
+            {% elif host.status == 'rejected' %}
+              <span class="badge badge-red">Rejected</span>
+            {% else %}
+              <span class="badge badge-gray">{{ host.get_status_display }}</span>
+            {% endif %}
+          </div>
+          <p class="font-semibold">{{ host.user.email }}</p>
+        </div>
+        {% if host.status == 'pending' %}
+          <div class="flex gap-2">
+            <form method="post" action="{% url 'ops_portal:approve_host' pk=host.pk %}">{% csrf_token %}
+              <button class="btn btn-success btn-sm">Approve</button>
+            </form>
+            <form method="post" action="{% url 'ops_portal:reject_host' pk=host.pk %}">{% csrf_token %}
+              <button class="btn btn-danger-outline btn-sm">Reject</button>
+            </form>
+          </div>
+        {% endif %}
+      </article>
+    {% empty %}
+      <div class="card p-12 text-center">
+        <p class="text-neutral-400 font-medium">No host applications yet.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

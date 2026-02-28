@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}Manage Listings · Covach{% endblock %}
+{% block content %}
+<section>
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-heading text-3xl font-bold">Your listings</h1>
+    <a class="btn btn-primary" href="{% url 'listings:create' %}">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+      New listing
+    </a>
+  </div>
+  <div class="space-y-3">
+    {% for listing in listings %}
+      <article class="card p-5 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            {% if listing.status == 'published' %}
+              <span class="badge badge-green">Published</span>
+            {% elif listing.status == 'draft' %}
+              <span class="badge badge-gray">Draft</span>
+            {% elif listing.status == 'archived' %}
+              <span class="badge badge-gray">Archived</span>
+            {% else %}
+              <span class="badge badge-gray">{{ listing.get_status_display }}</span>
+            {% endif %}
+          </div>
+          <p class="font-heading text-lg font-bold">{{ listing.title }}</p>
+          <p class="text-sm text-neutral-500 mt-0.5">{{ listing.city }} &middot; ${{ listing.nightly_rate_usd }}/night</p>
+        </div>
+        <div class="flex gap-2">
+          <a class="btn btn-secondary btn-sm" href="{% url 'listings:edit' pk=listing.pk %}">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/></svg>
+            Edit
+          </a>
+          <a class="btn btn-danger-outline btn-sm" href="{% url 'listings:archive' pk=listing.pk %}">Archive</a>
+        </div>
+      </article>
+    {% empty %}
+      <div class="card p-12 text-center">
+        <svg class="w-12 h-12 text-neutral-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 21v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21m0 0h4.5V3.545M12.75 21h7.5V10.75M2.25 21h1.5m18 0h-18M2.25 9l4.5-1.636M18.75 3l-1.5.545m0 6.205l3 1m1.5.5l-1.5-.5M6.75 7.364V3h-3v18m3-13.636l10.5-3.819"/></svg>
+        <p class="text-neutral-400 font-medium">No listings yet.</p>
+        <a href="{% url 'listings:create' %}" class="btn btn-primary mt-4">Create your first listing</a>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
